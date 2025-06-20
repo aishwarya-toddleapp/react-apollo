@@ -1,11 +1,53 @@
+import { gql, useMutation } from "@apollo/client";
 import React, { useState } from "react";
+import { AUTH_TOKEN } from "../constants";
+import { useNavigate } from "react-router-dom";
+
+const SIGNUP_MUTATION = gql`
+  mutation SignupMutation($email: String!, $password: String!, $name: String!) {
+    signup(email: $email, password: $password, name: $name) {
+      token
+    }
+  }
+`;
+
+const LOGIN_MUTATION = gql`
+  mutation LoginMutation($email: String!, $password: String!) {
+    login(email: $email, password: $password) {
+      token
+    }
+  }
+`;
 
 const Login = () => {
+  const navigate = useNavigate();
   const [formValues, setFormValues] = useState({
     login: true,
     name: "",
     email: "",
     password: "",
+  });
+  const [login] = useMutation(LOGIN_MUTATION, {
+    variables: {
+      email: formValues.email,
+      password: formValues.password,
+    },
+    onCompleted: ({ login }) => {
+      localStorage.setItem(AUTH_TOKEN, login.token);
+      navigate("/");
+    },
+  });
+
+  const [signup] = useMutation(SIGNUP_MUTATION, {
+    variables: {
+      name: formValues.name,
+      email: formValues.email,
+      password: formValues.password,
+    },
+    onCompleted: ({ signup }) => {
+      localStorage.setItem(AUTH_TOKEN, signup.token);
+      navigate("/");
+    },
   });
   return (
     <div>
@@ -47,10 +89,21 @@ const Login = () => {
           }}
         />
         <div className="flex mt-3">
-          <button className="mr2 button">
+          <button
+            className="mr2 button"
+            onClick={formValues.login ? login : signup}
+          >
             {formValues.login ? "Login" : "Create Account"}
           </button>
-          <button className="button">
+          <button
+            className="button"
+            onClick={(e) =>
+              setFormValues({
+                ...formValues,
+                login: !formValues.login,
+              })
+            }
+          >
             {formValues.login
               ? "need to create an account?"
               : "already have an account"}
