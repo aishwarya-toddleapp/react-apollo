@@ -51,7 +51,13 @@ const link = split(
 
 const client = new ApolloClient({
   link,
-  cache: new InMemoryCache(),
+  cache: new InMemoryCache({
+    typePolicies: {
+      Link: {
+        keyFields: ["id"],
+      },
+    },
+  }),
 });
 
 const root = ReactDOM.createRoot(document.getElementById("root"));

@@ -2,6 +2,7 @@ import React from "react";
 import { LINKS_PER_PAGE, timeDifferenceForDate } from "../utils/util";
 import { gql, useMutation } from "@apollo/client";
 import { FEED_QUERY } from "./LinkList";
+import { AUTH_TOKEN } from "../constants";
 
 const VOTE_MUTATION = gql`
   mutation VoteMutation($linkId: ID!) {
@@ -25,6 +26,7 @@ const skip = 0;
 const orderBy = { createdAt: "desc" };
 
 const Link = (props) => {
+  const authToken = localStorage.getItem(AUTH_TOKEN);
   const { description, url, votes, postedBy, createdAt, id } = props.link;
   const [vote] = useMutation(VOTE_MUTATION, {
     variables: {
@@ -55,12 +57,12 @@ const Link = (props) => {
         data: {
           feed: {
             links: updatedLinks,
-            variables: {
-              take,
-              skip,
-              orderBy,
-            },
           },
+        },
+        variables: {
+          take,
+          skip,
+          orderBy,
         },
       });
     },
@@ -70,13 +72,15 @@ const Link = (props) => {
     <div className="flex mt2 items-start">
       <div className="flex items-center">
         <span className="gray">{props.index + 1}.</span>
-        <div
-          className="ml1 gray f11"
-          style={{ cursor: "pointer" }}
-          onClick={vote}
-        >
-          ▲
-        </div>
+        {authToken && (
+          <div
+            className="ml1 gray f11"
+            style={{ cursor: "pointer" }}
+            onClick={vote}
+          >
+            ▲
+          </div>
+        )}
         <div className="ml1">
           <div>
             {description}({url})

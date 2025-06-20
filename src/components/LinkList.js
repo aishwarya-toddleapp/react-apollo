@@ -85,10 +85,10 @@ const getListsToRender = (isNewPage, data) => {
   return rankedLists;
 };
 
-const LinkList = () => {
+const LinkList = ({ client }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const isNewPage = location.pathname.includes("/new");
+  const isNewPage = location.pathname.includes("new");
   const pageIndexParam = location.pathname.split("/");
   const page = parseInt(pageIndexParam[pageIndexParam?.length - 1]);
   const pageIndex = page ? (page - 1) * LINKS_PER_PAGE : 0;
@@ -96,6 +96,13 @@ const LinkList = () => {
   const { data, subscribeToMore, loading, error } = useQuery(FEED_QUERY, {
     variables: getQueryVariables(isNewPage, page),
   });
+  console.log(
+    isNewPage,
+    pageIndex,
+    page,
+    getQueryVariables(isNewPage, page),
+    data
+  );
 
   subscribeToMore({
     document: NEW_LINKS_SUBSCRIPTION,
